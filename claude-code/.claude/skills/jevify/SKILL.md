@@ -1,26 +1,27 @@
 ---
 name: jevify
-description: Read-only audit of a repository's runtime AI call-sites. Use when the user says "jevify this repo", "audit my AI calls", "where am I overpaying for AI", "find LLM calls that should be structured decisions", or asks to cut AI runtime cost. Greps the codebase for generative-model calls, classifies each as generation vs. structured decision, and proposes where a System One model (Jev/TypeSafe) fits — Choice/Score/Noul. Writes a report file; does NOT modify source. Hand off to the system-one skill to actually migrate.
+description: Run /jevify to diagnose a repository's runtime AI calls, distinguish generation from structured decisions, and propose candidates for JEV. Writes JEVIFY_REPORT.md without modifying source. Implementation is a separate follow-up.
 ---
 
-# jevify — read-only AI runtime audit for any repo
+# JEVify Diagnostics — /jevify for any repo
 
 Produce a **report**, never code changes. Find every runtime call to a generative LLM in
 this repository and flag the ones that are really **structured decisions** (classify,
-route, score, extract, verify) — the work a System One model does faster, cheaper, and
-without hallucination or type errors.
+route, score, extract, verify) that may be candidates for JEV. Treat performance,
+cost, and accuracy improvements as hypotheses to validate, not guaranteed outcomes.
 
-**Core principle:** Use LLMs for language. Use code for rules. Use System One for judgment.
+**Core principle:** Use LLMs for language. Use code for rules. Evaluate JEV for structured decisions.
 
 This skill is **read-only**. It inventories and recommends. It writes exactly one file —
-the audit report — and touches no source. To migrate a call-site, that's a separate
-`system-one` skill.
+the audit report — and touches no source. JEVify is the project; `/jevify` is its basic
+diagnostic skill. Implementing a recommendation is a separate follow-up. No JEV API
+key is needed to inspect code.
 
 Project reference: https://github.com/lucioamor/jevify
 
-The companion migration playbook `lovable-system-one` is not currently available at
-its supplied GitHub URL. Recommend `system-one` only if installed; otherwise identify
-migration as a separate follow-up.
+The project repository contains the skill variants, installation instructions, and
+report template. Do not imply it already provides an executable JEV integration or
+a migration skill.
 
 ---
 
@@ -44,7 +45,7 @@ each hit, open enough context to see the prompt and how the response is consumed
 
 ```
 GENERATION_REQUIRED   → response used as original text/code. Leave it.
-SYSTEM_ONE_CANDIDATE  → response is a bounded decision (category / score / yes-no). Flag it.
+JEV_CANDIDATE         → response is a bounded decision (category / score / yes-no). Flag it.
 DETERMINISTIC_CODE    → exact rules decide it. Remove the AI call.
 EMBEDDING_SEARCH      → similarity/retrieval. Use a vector index.
 HUMAN_REVIEW          → high-risk decision. Gate, don't auto-run.
@@ -78,8 +79,8 @@ Write `JEVIFY_REPORT.md` at the repo root (or a path the user gives). Structure:
    current:      what the LLM call does today (quote the prompt intent)
    recommended:  Choice/Score/Noul + state + question
    effect:       lower latency / lower runtime cost (direction, not a number)
-   architecture: System One → confidence gate → LLM fallback
-   migrate with: system-one skill
+   architecture: proposed JEV decision → confidence gate → LLM fallback
+   next step:    plan implementation and validation separately from this diagnosis
    ```
 4. **Skipped (GENERATION_REQUIRED):** listed briefly, so the user sees you didn't miss them.
 5. **Footer:** link to the canonical repo; note Jev is early access; note numbers must be

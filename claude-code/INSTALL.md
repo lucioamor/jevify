@@ -1,6 +1,6 @@
-# Instalar e usar `/jevify` no Claude Code
+# JEVify Diagnóstico no Claude Code
 
-Skill **read-only** que audita os call-sites de IA em runtime de um repositório e propõe onde uma System One model (Jev) substitui um LLM generativo. Escreve um único arquivo de relatório (`JEVIFY_REPORT.md`); não toca no código.
+`/jevify` é a skill básica **read-only** do projeto JEVify. Audita os call-sites de IA em runtime e identifica candidatos a decisões estruturadas com JEV. Escreve um único arquivo de relatório (`JEVIFY_REPORT.md`); não toca no código.
 
 ## Instalação (por repositório)
 
@@ -44,17 +44,17 @@ ou em linguagem natural: *"jevify this repo"*, *"onde estou pagando IA demais ne
 
 A skill vai:
 1. Varrer o repo por chamadas a OpenAI/Anthropic/Gemini/etc. (Edge Functions, API routes, server files).
-2. Classificar cada call-site (`SYSTEM_ONE_CANDIDATE`, `GENERATION_REQUIRED`, etc.).
+2. Classificar cada call-site (`JEV_CANDIDATE`, `GENERATION_REQUIRED`, etc.).
 3. Propor o primitive (Choice/Score/Noul) + state + risco por candidato.
 4. Escrever `JEVIFY_REPORT.md` na raiz e imprimir o resumo.
 
 ## Depois do relatório
 
-`/jevify` só propõe. Para **implementar** uma migração (gerar a Edge Function, telemetria, fallback), use a skill `/system-one` se já estiver instalada. O playbook complementar `lovable-system-one` ainda não está disponível no endereço GitHub fornecido; sem ele, a migração é uma implementação separada. Divisão de papéis:
+`/jevify` só diagnostica e recomenda. Use o relatório para planejar a implementação e sua validação em uma etapa separada. O [repositório JEVify](https://github.com/lucioamor/jevify) reúne as variantes da skill, as instruções e o template. Ele ainda não oferece uma skill de migração ou integração executável com JEV.
 
 ```
-/jevify      → audita e propõe (read-only)
-/system-one  → modela e migra (escreve código)
+/jevify       → diagnostica e recomenda (read-only)
+etapa seguinte → implementar e validar as recomendações
 ```
 
 ## Notas

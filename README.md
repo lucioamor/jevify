@@ -1,10 +1,17 @@
-# jevify
+# JEVify
 
-> **Read-only AI runtime audit.** Aponta onde um app paga por inteligência *generativa* quando precisa apenas de uma *decisão semântica estruturada* — e propõe o primitive System One (Choice/Score/Noul) que resolve. Produz um relatório; **não** altera código.
+> **Diagnóstico de IA em runtime para identificar oportunidades com JEV.** A skill `/jevify` aponta onde um app usa geração quando precisa de uma decisão estruturada e propõe candidatos para avaliação com JEV (Choice/Score/Noul). Produz um relatório; **não** altera código.
 >
-> `/jevify` audita e propõe. `/system-one` migra. Motor vendor-neutral por baixo; nome memorável por cima.
+> **JEVify** é o projeto. **`/jevify`** é sua skill básica de diagnóstico read-only.
 
-O `/jevify` é a **porta de entrada read-only**: baixo compromisso, não pede acesso de escrita, mantém você no papel de advisor. O playbook complementar `lovable-system-one`, com a skill de migração `/system-one`, ainda não está disponível no endereço GitHub fornecido. A auditoria funciona de forma independente; a migração exige esse material ou uma implementação separada.
+## Projeto e skill
+
+| Componente | Papel | Disponível hoje |
+|---|---|---|
+| **JEVify** ([repositório do projeto](https://github.com/lucioamor/jevify)) | Reúne o projeto e seu material de apoio | Variantes Lovable e Claude Code, instalação e template de relatório |
+| **JEVify Diagnóstico** (`/jevify`) | Skill básica que inventaria, classifica e recomenda | Auditoria read-only; no Claude Code, escreve apenas o relatório |
+
+JEV é a tecnologia avaliada nas recomendações; JEVify é o projeto que organiza esse diagnóstico. A skill funciona de forma independente e não exige acesso à API do JEV para analisar o código. Implementar e validar as recomendações é uma etapa posterior, fora da skill básica. Este repositório ainda não oferece uma skill de migração ou integração executável com JEV.
 
 ## Duas variantes, mesmo comportamento
 
@@ -41,9 +48,9 @@ jevify/
 Edite a variante Lovable no catálogo e mantenha `lovable/SKILL.md` deste projeto sincronizado. A variante Claude Code e o template de relatório são mantidos neste repositório.
 
 ## Princípio
-**Use LLMs for language. Use code for rules. Use System One for judgment.**
+**Use LLMs para linguagem. Use código para regras. Avalie JEV para decisões estruturadas.**
 
-## Limites (herdados do playbook)
+## Limites do diagnóstico
 - Read-only: nunca edita código-fonte (a variante Claude Code escreve só o relatório).
 - Efeito reportado como direção, nunca número prometido — valide em shadow mode.
 - Não reduz créditos de *build* do Lovable; ataca custo de IA em *runtime*.

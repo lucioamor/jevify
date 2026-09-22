@@ -1,6 +1,6 @@
-# Instalar e usar `/jevify` no Lovable
+# JEVify Diagnóstico no Lovable
 
-Skill **read-only** de workspace que audita um projeto Lovable e propõe onde uma System One model (Jev) substitui chamadas de LLM generativo em runtime. Produz um relatório; não altera o app.
+`/jevify` é a skill básica **read-only** do projeto JEVify. Audita um projeto Lovable e identifica chamadas de LLM generativo em runtime que podem ser candidatas a decisões estruturadas com JEV. Produz um relatório; não altera o app.
 
 ## Instalação (workspace Lovable)
 
@@ -28,7 +28,7 @@ ou: *"audite este app para custo de IA em runtime"*, *"onde estou gastando créd
 
 O agente vai:
 1. Localizar as chamadas de IA em runtime (Edge Functions, chamadas ao AI gateway).
-2. Classificar cada uma (candidata a System One vs. geração vs. código vs. humano).
+2. Classificar cada uma (candidata a JEV vs. geração vs. código vs. humano).
 3. Propor o primitive (Choice/Score/Noul), o state e o risco por candidato.
 4. Devolver o relatório no chat.
 
@@ -38,14 +38,14 @@ O agente vai:
 
 ## Depois do relatório
 
-Para **implementar** — gerar a Edge Function com decision layer, secrets, telemetria e fallback — use a skill `/system-one` se ela estiver instalada no mesmo workspace. O playbook complementar `lovable-system-one` ainda não está disponível no endereço GitHub fornecido. Sem ele, trate a migração como uma implementação separada.
+Use o relatório para planejar a implementação e sua validação em uma etapa separada. O [repositório JEVify](https://github.com/lucioamor/jevify) reúne as variantes da skill, as instruções e o template. Ele ainda não oferece uma skill de migração ou integração executável com JEV.
 
 ```
-/jevify      → audita e propõe (read-only)
-/system-one  → modela e migra (gera a Edge Function)
+/jevify       → diagnostica e recomenda (read-only)
+etapa seguinte → implementar e validar as recomendações
 ```
 
 ## Notas
-- A chave da API do provider vai em Cloud → Secrets, nunca no frontend (a `/system-one` cuida disso na migração).
+- O diagnóstico não exige chave da API do JEV. Uma futura integração deve manter as credenciais no backend, nunca no frontend.
 - Efeito reportado como direção, não número prometido — valide em shadow mode.
 - Jev está em early access.
