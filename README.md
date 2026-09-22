@@ -11,7 +11,9 @@
 | **jevify** ([project repository](https://github.com/lucioamor/jevify)) | Houses the project and supporting material | Lovable and Claude Code variants, installation instructions, and report template |
 | **jevify diagnostics** (`/jevify`) | Inventories, classifies, and recommends | Read-only audit; the Claude Code variant writes only the report |
 
-JEV is the technology evaluated in recommendations; jevify organizes the diagnosis. The skill works independently and requires no JEV API access to inspect code. Implementation and validation are separate follow-ups. This repository does not yet provide a migration skill, executable JEV integration, hosted audit API, MCP server, or usage statistics.
+JEV is the technology evaluated in recommendations; jevify organizes the diagnosis. The skill works independently and requires no JEV API access to inspect code. Implementation and validation are separate follow-ups. This repository does not yet provide a migration skill, executable JEV integration, or usage statistics.
+
+A live site and MCP server are available at **[jevify.lovable.app](https://jevify.lovable.app)**.
 
 ## Two variants, shared purpose
 
