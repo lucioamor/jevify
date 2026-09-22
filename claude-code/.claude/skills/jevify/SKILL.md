@@ -1,9 +1,9 @@
 ---
 name: jevify
-description: Run /jevify to diagnose a repository's runtime AI calls, distinguish generation from structured decisions, and propose candidates for JEV. Writes JEVIFY_REPORT.md without modifying source. Implementation is a separate follow-up.
+description: Run /jevify to diagnose a repository's runtime AI calls, distinguish generation from structured decisions, and propose candidates for JEV. Writes jevify-report.md without modifying source. Implementation is a separate follow-up.
 ---
 
-# JEVify Diagnostics — /jevify for any repo
+# jevify Diagnostics — /jevify for any repo
 
 Produce a **report**, never code changes. Find every runtime call to a generative LLM in
 this repository and flag the ones that are really **structured decisions** (classify,
@@ -13,7 +13,7 @@ cost, and accuracy improvements as hypotheses to validate, not guaranteed outcom
 **Core principle:** Use LLMs for language. Use code for rules. Evaluate JEV for structured decisions.
 
 This skill is **read-only**. It inventories and recommends. It writes exactly one file —
-the audit report — and touches no source. JEVify is the project; `/jevify` is its basic
+the audit report — and touches no source. jevify is the project; `/jevify` is its basic
 diagnostic skill. Implementing a recommendation is a separate follow-up. No JEV API
 key is needed to inspect code.
 
@@ -69,7 +69,7 @@ and the **risk** (LOW/MEDIUM/HIGH) of a wrong answer.
 
 ## Step 4 — Write the report
 
-Write `JEVIFY_REPORT.md` at the repo root (or a path the user gives). Structure:
+Write `jevify-report.md` at the repo root (or a path the user gives). Structure:
 
 1. **Summary line:** N call-sites scanned, X candidates, split by classification.
 2. **Inventory table:** `file:line | purpose | classification | primitive | risk | why`.
@@ -83,8 +83,8 @@ Write `JEVIFY_REPORT.md` at the repo root (or a path the user gives). Structure:
    next step:    plan implementation and validation separately from this diagnosis
    ```
 4. **Skipped (GENERATION_REQUIRED):** listed briefly, so the user sees you didn't miss them.
-5. **Footer:** link to the canonical repo; note Jev is early access; note numbers must be
-   validated in shadow mode before any claim.
+5. **Footer:** link to the canonical repo; verify current JEV availability before discussing
+   production adoption; note that gains require validation in shadow mode before any claim.
 
 Print the summary line and the report path to the user. Do not edit any source file.
 

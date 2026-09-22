@@ -4,4 +4,4 @@ Desktop.ini
 .env
 .env.*
 !.env.example
-JEVIFY_REPORT.md
+jevify-report.md

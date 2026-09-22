@@ -1,41 +1,43 @@
-# JEVIFY_REPORT — template de saída
+# jevify report template
 
-Formato de referência do relatório que o `/jevify` produz. Serve tanto para a variante Lovable (devolvido no chat) quanto para a Claude Code (escrito como `JEVIFY_REPORT.md`). Preencha; não invente números.
+Reference format for the report produced by `/jevify`. The Lovable variant returns it in chat; the Claude Code variant writes `jevify-report.md`. Replace the illustrative entries with observed findings. Do not invent measurements.
 
 ---
 
-## Resumo
+## Summary
 
-`N` call-sites de IA em runtime escaneados · `X` candidatos a JEV · `Y` geração (mantidos) · `Z` código determinístico · `W` outros.
+`N` runtime AI call-sites inspected · `X` JEV candidates · `Y` generation tasks retained · `Z` deterministic code candidates · `W` other findings.
 
-## Inventário
+## Inventory
 
-| file:line | propósito | classificação | primitive | risco | por quê |
+| file:line | purpose | classification | primitive | risk | reason |
 |---|---|---|---|---|---|
-| `supabase/functions/triage/index.ts:42` | roteia ticket | JEV_CANDIDATE | Choice | LOW | usa só o rótulo da categoria, não texto |
-| `supabase/functions/reply/index.ts:15` | escreve resposta ao cliente | GENERATION_REQUIRED | — | — | saída é prosa enviada ao usuário |
-| `src/api/validate.ts:8` | valida formato de email | DETERMINISTIC_CODE | — | — | regra exata, não precisa de IA |
+| `supabase/functions/triage/index.ts:42` | Routes a ticket | JEV_CANDIDATE | Choice | LOW | Uses only the category label |
+| `supabase/functions/reply/index.ts:15` | Writes a customer reply | GENERATION_REQUIRED | — | — | Sends generated prose to the user |
+| `src/api/validate.ts:8` | Validates email format | DETERMINISTIC_CODE | — | — | Exact rules determine the result |
 
-## Candidatos (detalhe)
+## Candidate details
 
 ### `supabase/functions/triage/index.ts:42`
-```
-current:      LLM classifica o ticket em [comercial, suporte, cancelamento] e devolve JSON
-recommended:  Choice["comercial","suporte","cancelamento","outro"]
-              state: { mensagem, canal, plano_do_cliente }
-              question: intent do ticket
-effect:       hipótese de menor latência / menor custo de IA em runtime; validar com medições
-architecture: decisão com JEV → confidence gate (limiar a validar) → fallback LLM ou revisão humana
+
+```text
+current:      LLM classifies tickets as sales, support, or cancellation and returns JSON
+recommended:  Choice["sales","support","cancellation","other"]
+              state: { message, channel, customer_plan }
+              question: ticket intent
+effect:       hypothesized reduction in latency or runtime AI cost; requires measurement
+architecture: JEV decision → validated acceptance threshold → LLM fallback or human review
 risk:         LOW
-next step:    planejar implementação e validação em etapa separada do diagnóstico
+next step:    plan implementation and validation separately from diagnosis
 ```
 
-## Mantidos como geração (não são candidatos)
-- `supabase/functions/reply/index.ts:15` — gera texto de resposta ao cliente. Correto no LLM.
-- `supabase/functions/summarize/index.ts:9` — resume histórico. Correto no LLM.
+## Retained generation tasks
 
-## Rodapé
-- Referência do projeto: https://github.com/lucioamor/jevify
-- Jev (TypeSafe) está em early access — padrão a adotar, não dependência a assumir hoje.
-- Todos os "effect" são **direção**, não promessa. Valide accuracy/latency/custo/fallback em shadow mode antes de qualquer claim.
-- Próximo passo por candidato: planejar a implementação e validar os resultados; essa etapa está fora da skill básica de diagnóstico.
+- `supabase/functions/reply/index.ts:15` — writes a customer reply; generation is required.
+
+## Footer
+
+- Project reference: https://github.com/lucioamor/jevify
+- Check current JEV availability and integration requirements before production use.
+- Expected effects are **hypotheses**, not promises. Validate quality, latency, cost, and fallback behavior in shadow mode before claiming improvements.
+- Implementation and validation are separate from the basic diagnostic skill.

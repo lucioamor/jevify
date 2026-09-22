@@ -1,51 +1,53 @@
-# JEVify Diagnóstico no Lovable
+# jevify diagnostics in Lovable
 
-`/jevify` é a skill básica **read-only** do projeto JEVify. Audita um projeto Lovable e identifica chamadas de LLM generativo em runtime que podem ser candidatas a decisões estruturadas com JEV. Produz um relatório; não altera o app.
+`/jevify` is the jevify project's basic **read-only** skill. It audits a Lovable project and identifies runtime generative LLM calls that may be candidates for structured decisions with JEV. It produces a report without modifying the app.
 
-## Instalação (workspace Lovable)
+## Install in a Lovable workspace
 
-Importe o repositório público em **Settings → Skills → Add → Import from GitHub**:
+Import the public repository through **Settings → Skills → Add → Import from GitHub**:
 
 ```text
 https://github.com/lucioamor/lovable-skill-jevify
 ```
 
-Use o repositório individual acima, que contém `SKILL.md` na raiz. Alternativas:
+Use this standalone repository, which contains `SKILL.md` at the root. You can also upload the project's `lovable/SKILL.md` through the workspace skill settings. Preserve the frontmatter, including `name: jevify` and `description`.
 
-1. **Upload do SKILL.md** — em *Workspace → Skills → Add skill → Upload*, envie `jevify/lovable/SKILL.md`.
-2. **Colar o conteúdo** — *Add skill → Create*, cole o conteúdo do `SKILL.md` (frontmatter + corpo).
-3. **Pedir ao Lovable para gerar** — cole o corpo e peça "crie uma skill a partir disto"; confira se o frontmatter (`name: jevify`, `description`) ficou intacto.
+Once installed, the skill is available across the workspace through `/jevify`. Re-import the repository when a new version is published.
 
-Uma vez adicionada, fica disponível para todo o workspace via `/jevify`.
+## Usage
 
-## Uso
+In a project's builder chat:
 
-Dentro de um projeto Lovable, no chat do builder:
-```
+```text
 /jevify
 ```
-ou: *"audite este app para custo de IA em runtime"*, *"onde estou gastando crédito de IA à toa?"*.
 
-O agente vai:
-1. Localizar as chamadas de IA em runtime (Edge Functions, chamadas ao AI gateway).
-2. Classificar cada uma (candidata a JEV vs. geração vs. código vs. humano).
-3. Propor o primitive (Choice/Score/Noul), o state e o risco por candidato.
-4. Devolver o relatório no chat.
+You can also ask: "Audit this app's runtime AI calls."
 
-## Escopo (o que ela NÃO faz)
-- Não reduz créditos de **build** (as mensagens que você troca para construir o app) — só custo de IA em **runtime** do app publicado.
-- Não altera o app. Só audita e propõe.
+The agent will:
 
-## Depois do relatório
+1. Locate runtime AI calls, including Edge Functions and AI gateway calls.
+2. Classify each call-site as a JEV candidate, generation, deterministic code, retrieval, human review, or unknown.
+3. Propose Choice/Score/Noul, the required state, and risk for each candidate.
+4. Return the report in chat.
 
-Use o relatório para planejar a implementação e sua validação em uma etapa separada. O [repositório JEVify](https://github.com/lucioamor/jevify) reúne as variantes da skill, as instruções e o template. Ele ainda não oferece uma skill de migração ou integração executável com JEV.
+## Scope
 
+- Targets the published app's **runtime** AI usage, not **build** credits.
+- Audits and recommends without changing the app.
+- Does not install or connect a hosted MCP service.
+
+## After the report
+
+Plan implementation and validation separately. The [jevify repository](https://github.com/lucioamor/jevify) houses the skill variants, instructions, and report template. It does not yet offer a migration skill or executable JEV integration.
+
+```text
+/jevify       → diagnose and recommend (read-only)
+follow-up     → implement and validate recommendations
 ```
-/jevify       → diagnostica e recomenda (read-only)
-etapa seguinte → implementar e validar as recomendações
-```
 
-## Notas
-- O diagnóstico não exige chave da API do JEV. Uma futura integração deve manter as credenciais no backend, nunca no frontend.
-- Efeito reportado como direção, não número prometido — valide em shadow mode.
-- Jev está em early access.
+## Notes
+
+- Diagnosis requires no JEV API key. Any future integration should keep credentials on the backend.
+- The current skill reports expected effects as hypotheses, without promised numbers. Validate them in shadow mode.
+- Check current JEV availability and integration requirements before production use.

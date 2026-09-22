@@ -1,63 +1,70 @@
-# JEVify Diagnóstico no Claude Code
+# jevify diagnostics in Claude Code
 
-`/jevify` é a skill básica **read-only** do projeto JEVify. Audita os call-sites de IA em runtime e identifica candidatos a decisões estruturadas com JEV. Escreve um único arquivo de relatório (`JEVIFY_REPORT.md`); não toca no código.
+`/jevify` is the jevify project's basic **read-only** skill. It audits runtime AI call-sites and identifies candidates for structured decisions with JEV. It writes a single report file (`jevify-report.md`) without changing source code.
 
-## Instalação (por repositório)
+## Install in a repository
 
-Copie a pasta da skill para o repo que você quer auditar:
+Copy the skill folder into the repository you want to audit:
 
-```
-seu-repo/
+```text
+your-repo/
 └── .claude/
     └── skills/
         └── jevify/
             └── SKILL.md
 ```
 
-Comandos:
+Shell commands:
+
 ```bash
 mkdir -p .claude/skills/jevify
-cp caminho/para/jevify/claude-code/.claude/skills/jevify/SKILL.md .claude/skills/jevify/
+cp path/to/jevify/claude-code/.claude/skills/jevify/SKILL.md .claude/skills/jevify/
 ```
 
-Comite no repo para o time inteiro ter o comando:
+Commit it to make the command available to your team:
+
 ```bash
 git add .claude/skills/jevify/SKILL.md
 git commit -m "chore: add /jevify AI runtime audit skill"
 ```
 
-## Instalação (global, para todos os seus repos)
+## Install globally
 
-Coloque em `~/.claude/skills/jevify/SKILL.md`. Fica disponível em qualquer sessão do Claude Code, sem comitar em cada repo.
+Place the skill at `~/.claude/skills/jevify/SKILL.md` to use it across Claude Code sessions:
+
 ```bash
 mkdir -p ~/.claude/skills/jevify
-cp caminho/para/jevify/claude-code/.claude/skills/jevify/SKILL.md ~/.claude/skills/jevify/
+cp path/to/jevify/claude-code/.claude/skills/jevify/SKILL.md ~/.claude/skills/jevify/
 ```
 
-## Uso
+## Usage
 
-Na raiz do repo, dentro do Claude Code:
-```
+From the repository root, inside Claude Code:
+
+```text
 /jevify
 ```
-ou em linguagem natural: *"jevify this repo"*, *"onde estou pagando IA demais neste app?"*.
 
-A skill vai:
-1. Varrer o repo por chamadas a OpenAI/Anthropic/Gemini/etc. (Edge Functions, API routes, server files).
-2. Classificar cada call-site (`JEV_CANDIDATE`, `GENERATION_REQUIRED`, etc.).
-3. Propor o primitive (Choice/Score/Noul) + state + risco por candidato.
-4. Escrever `JEVIFY_REPORT.md` na raiz e imprimir o resumo.
+You can also ask: "jevify this repo."
 
-## Depois do relatório
+The skill will:
 
-`/jevify` só diagnostica e recomenda. Use o relatório para planejar a implementação e sua validação em uma etapa separada. O [repositório JEVify](https://github.com/lucioamor/jevify) reúne as variantes da skill, as instruções e o template. Ele ainda não oferece uma skill de migração ou integração executável com JEV.
+1. Search for calls to OpenAI, Anthropic, Gemini, and other providers in Edge Functions, API routes, and server files.
+2. Classify each call-site (`JEV_CANDIDATE`, `GENERATION_REQUIRED`, and other categories).
+3. Propose Choice/Score/Noul, state, and risk for each candidate.
+4. Write `jevify-report.md` at the repository root and print a summary.
 
+## After the report
+
+Plan implementation and validation separately. The [jevify repository](https://github.com/lucioamor/jevify) houses the skill variants, instructions, and report template. It does not yet offer a migration skill or executable JEV integration.
+
+```text
+/jevify       → diagnose and recommend (read-only)
+follow-up     → implement and validate recommendations
 ```
-/jevify       → diagnostica e recomenda (read-only)
-etapa seguinte → implementar e validar as recomendações
-```
 
-## Notas
-- A skill nunca edita código-fonte; só escreve o relatório.
-- Efeito é sempre reportado como direção (menor latência/custo), nunca como número prometido — valide em shadow mode.
-- Jev está em early access; trate como padrão a adotar, não dependência a assumir hoje.
+## Notes
+
+- The skill never edits source code; it writes only the report.
+- The current skill reports expected effects as hypotheses, without promised numbers. Validate quality, latency, cost, and fallback behavior in shadow mode.
+- Check current JEV availability and integration requirements before production use.

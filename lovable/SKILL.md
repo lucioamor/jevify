@@ -3,15 +3,15 @@ name: jevify
 description: Run /jevify for a read-only diagnosis of runtime AI calls in a Lovable project. Distinguishes generation from structured decisions and proposes candidates for JEV. Returns a report in chat without changing code. Targets runtime AI cost, not build credits.
 ---
 
-# JEVify Diagnostics — /jevify for Lovable apps
+# jevify Diagnostics — /jevify for Lovable apps
 
 ## Skill identity
 
-- Version: `v1.1.0`
+- Version: `v1.1.1`
 - Source repo: `https://github.com/lucioamor/lovable-skill-jevify`
 - Central catalog: `https://github.com/lucioamor/lovable-skills`
 - Before the final response, compare the installed version with `VERSION.md` in the source repo when reachable.
-- End with: `Skill: /jevify v1.1.0 · Version status: {current | update available | unverified} · Source: https://github.com/lucioamor/lovable-skill-jevify`.
+- End with: `Skill: /jevify v1.1.1 · Version status: {current | update available | unverified} · Source: https://github.com/lucioamor/lovable-skill-jevify`.
 - Use `current` only for a verified match, `update available` for a verified newer version, and `unverified` when the source cannot be checked.
 
 ## Audit
@@ -26,7 +26,7 @@ improvements as hypotheses to validate, not guaranteed outcomes.
 
 **You never edit files in this skill.** You inventory, classify, and recommend. If the
 user wants to implement a recommendation, identify that as a separate follow-up.
-JEVify is the project; `/jevify` is its basic read-only diagnostic skill. It does not
+jevify is the project; `/jevify` is its basic read-only diagnostic skill. It does not
 perform migrations or require a JEV API key to inspect code.
 
 Project reference: https://github.com/lucioamor/jevify
@@ -96,5 +96,5 @@ next step:    plan implementation and validation separately from this diagnosis
 - Never present a savings number as a promise — direction only, to be validated in shadow mode.
 - Never flag a generation task as a candidate. If you're reframing a writing task to fit
   Choice/Score/Noul, stop — it's `GENERATION_REQUIRED`.
-- Flag Jev's early-access status if the user talks about depending on it in production.
-- End by linking to the JEVify project repository and identifying implementation and validation as separate next steps.
+- Verify current JEV availability and integration requirements before discussing production adoption.
+- End by linking to the jevify project repository and identifying implementation and validation as separate next steps.

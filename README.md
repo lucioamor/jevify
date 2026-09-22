@@ -1,60 +1,64 @@
-# JEVify
+# jevify
 
-> **Diagnóstico de IA em runtime para identificar oportunidades com JEV.** A skill `/jevify` aponta onde um app usa geração quando precisa de uma decisão estruturada e propõe candidatos para avaliação com JEV (Choice/Score/Noul). Produz um relatório; **não** altera código.
+> **Runtime AI diagnostics to identify opportunities with JEV.** The `/jevify` skill identifies where an app uses generation for a structured decision and proposes candidates to evaluate with JEV (Choice/Score/Noul). It produces a report without changing source code.
 >
-> **JEVify** é o projeto. **`/jevify`** é sua skill básica de diagnóstico read-only.
+> **jevify** is the project. **`/jevify`** is its basic read-only diagnostic skill.
 
-## Projeto e skill
+## Project and skill
 
-| Componente | Papel | Disponível hoje |
+| Component | Role | Available today |
 |---|---|---|
-| **JEVify** ([repositório do projeto](https://github.com/lucioamor/jevify)) | Reúne o projeto e seu material de apoio | Variantes Lovable e Claude Code, instalação e template de relatório |
-| **JEVify Diagnóstico** (`/jevify`) | Skill básica que inventaria, classifica e recomenda | Auditoria read-only; no Claude Code, escreve apenas o relatório |
+| **jevify** ([project repository](https://github.com/lucioamor/jevify)) | Houses the project and supporting material | Lovable and Claude Code variants, installation instructions, and report template |
+| **jevify diagnostics** (`/jevify`) | Inventories, classifies, and recommends | Read-only audit; the Claude Code variant writes only the report |
 
-JEV é a tecnologia avaliada nas recomendações; JEVify é o projeto que organiza esse diagnóstico. A skill funciona de forma independente e não exige acesso à API do JEV para analisar o código. Implementar e validar as recomendações é uma etapa posterior, fora da skill básica. Este repositório ainda não oferece uma skill de migração ou integração executável com JEV.
+JEV is the technology evaluated in recommendations; jevify organizes the diagnosis. The skill works independently and requires no JEV API access to inspect code. Implementation and validation are separate follow-ups. This repository does not yet provide a migration skill, executable JEV integration, hosted audit API, MCP server, or usage statistics.
 
-## Duas variantes, mesmo comportamento
+## Two variants, shared purpose
 
-| | Onde roda | Audita | Saída |
+| Variant | Runs in | Inspects | Output |
 |---|---|---|---|
-| **Lovable** (`lovable/SKILL.md`) | dentro do builder Lovable | as chamadas de IA em runtime do projeto (Edge Functions, AI gateway) | relatório no chat |
-| **Claude Code** (`claude-code/.claude/skills/jevify/SKILL.md`) | terminal, contra qualquer repo | o codebase inteiro (grep por SDKs de LLM) | `JEVIFY_REPORT.md` |
+| **Lovable** (`lovable/SKILL.md`) | The Lovable builder | Runtime AI calls in the accessible project, including Edge Functions and AI gateway calls | Report in chat |
+| **Claude Code** (`claude-code/.claude/skills/jevify/SKILL.md`) | A terminal against a repository | Available source files, searching for LLM SDKs and call-sites | `jevify-report.md` |
 
-## Estrutura
+## Structure
 
-```
+```text
 jevify/
-├── README.md                                   ← este arquivo
-├── report-template.md                          ← formato do relatório (compartilhado)
+├── README.md
+├── report-template.md
 ├── lovable/
-│   ├── SKILL.md                                ← a skill /jevify para Lovable
-│   └── INSTALL.md                              ← como adicionar ao workspace Lovable
+│   ├── SKILL.md
+│   └── INSTALL.md
 └── claude-code/
-    ├── INSTALL.md                              ← como instalar num repo / global
-    └── .claude/skills/jevify/SKILL.md          ← a skill /jevify para Claude Code
+    ├── INSTALL.md
+    └── .claude/skills/jevify/SKILL.md
 ```
 
-## Início rápido
+## Quick start
 
-- **Claude Code:** copie `claude-code/.claude/skills/jevify/` para o `.claude/skills/` do seu repo (ou `~/.claude/skills/` para global). Rode `/jevify`. Ver `claude-code/INSTALL.md`.
-- **Lovable:** importe [lovable-skill-jevify](https://github.com/lucioamor/lovable-skill-jevify) como skill de workspace. Rode `/jevify` dentro de um projeto. Ver `lovable/INSTALL.md`.
+- **Claude Code:** copy `claude-code/.claude/skills/jevify/` to your repository's `.claude/skills/`, or to `~/.claude/skills/` for global use. Run `/jevify`. See [installation instructions](claude-code/INSTALL.md).
+- **Lovable:** import [lovable-skill-jevify](https://github.com/lucioamor/lovable-skill-jevify) as a workspace skill. Run `/jevify` inside a project. See [installation instructions](lovable/INSTALL.md).
 
-## Publicação e manutenção
+## Publishing and maintenance
 
-- Projeto completo: [lucioamor/jevify](https://github.com/lucioamor/jevify).
-- Fonte canônica da variante Lovable: [lovable-skills/skills/jevify](https://github.com/lucioamor/lovable-skills/tree/main/skills/jevify).
-- Pacote para importação: [lucioamor/lovable-skill-jevify](https://github.com/lucioamor/lovable-skill-jevify), com `SKILL.md` na raiz.
+- Full project: [lucioamor/jevify](https://github.com/lucioamor/jevify).
+- Canonical Lovable skill: [lovable-skills/skills/jevify](https://github.com/lucioamor/lovable-skills/tree/main/skills/jevify).
+- Import package: [lucioamor/lovable-skill-jevify](https://github.com/lucioamor/lovable-skill-jevify), with `SKILL.md` at the root.
 
-Edite a variante Lovable no catálogo e mantenha `lovable/SKILL.md` deste projeto sincronizado. A variante Claude Code e o template de relatório são mantidos neste repositório.
+Edit the Lovable variant in the catalog and keep this project's `lovable/SKILL.md` synchronized. The Claude Code variant and report template are maintained here. The catalog's sync workflow publishes the standalone import package; importing users must re-import to update their installed skill.
 
-## Princípio
-**Use LLMs para linguagem. Use código para regras. Avalie JEV para decisões estruturadas.**
+Always write **jevify** in lowercase. Keep public repository documentation and GitHub descriptions in English.
 
-## Limites do diagnóstico
-- Read-only: nunca edita código-fonte (a variante Claude Code escreve só o relatório).
-- Efeito reportado como direção, nunca número prometido — valide em shadow mode.
-- Não reduz créditos de *build* do Lovable; ataca custo de IA em *runtime*.
-- Jev está em early access.
+## Principle
+
+**Use LLMs for language. Use code for rules. Evaluate JEV for structured decisions.**
+
+## Diagnostic boundaries
+
+- Never edits source code; the Claude Code variant writes only the report.
+- The current skill reports effects as hypotheses, without promised numerical gains. Validate quality, latency, cost, and fallback behavior before claiming improvements.
+- Targets runtime AI usage, not Lovable build credits.
+- Check current JEV availability and integration requirements before planning production use.
 
 ## Authorship and maintenance
 
