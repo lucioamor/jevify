@@ -1,0 +1,7 @@
+.DS_Store
+Thumbs.db
+Desktop.ini
+.env
+.env.*
+!.env.example
+JEVIFY_REPORT.md
