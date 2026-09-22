@@ -1,26 +1,30 @@
 # jevify
 
-> **Runtime AI diagnostics to identify opportunities with JEV.** The `/jevify` skill identifies where an app uses generation for a structured decision and proposes candidates to evaluate with JEV (Choice/Score/Noul). It produces a report without changing source code.
+> **Runtime AI diagnostics to identify opportunities with JEV.** The **jevify diagnostics** skill identifies where an app uses generation for a structured decision and proposes candidates to evaluate with JEV (Choice/Score/Noul). It produces a report without changing source code.
 >
-> **jevify** is the project. **`/jevify`** is its basic read-only diagnostic skill.
+> **jevify** is the project. **jevify diagnostics** is its basic read-only skill.
 
 ## Project and skill
 
-| Component | Role | Available today |
+| Component | What it is | Where to find it |
 |---|---|---|
-| **jevify** ([project repository](https://github.com/lucioamor/jevify)) | Houses the project and supporting material | Lovable and Claude Code variants, installation instructions, and report template |
-| **jevify diagnostics** (`/jevify`) | Inventories, classifies, and recommends | Read-only audit; the Claude Code variant writes only the report |
+| **Project / repository — jevify** | The diagnostic project and its public home for skills, documentation, and examples. The application's implementation is maintained separately. | [Public repository](https://github.com/lucioamor/jevify) · [Site](https://jevify.lovable.app) |
+| **Skill — jevify diagnostics** | Reusable instructions that an agent follows to inspect runtime AI calls, classify them, and recommend candidates for evaluation. It produces a report without changing source code. | Skill files and installation options below |
 
 JEV is the technology evaluated in recommendations; jevify organizes the diagnosis. The skill works independently and requires no JEV API access to inspect code. Implementation and validation are separate follow-ups. This repository does not yet provide a migration skill, executable JEV integration, or usage statistics.
 
 A live site and MCP server are available at **[jevify.lovable.app](https://jevify.lovable.app)**.
 
-## Two variants, shared purpose
+## Choose your environment
+
+The diagnostic method is independent of a particular AI client. Use the skill in an environment that can load its instructions and inspect the source being audited. Skill discovery, invocation, file access, and MCP connections depend on the client; support for MCP alone does not establish support for installing a skill.
 
 | Variant | Runs in | Inspects | Output |
 |---|---|---|---|
 | **Lovable** (`lovable/SKILL.md`) | The Lovable builder | Runtime AI calls in the accessible project, including Edge Functions and AI gateway calls | Report in chat |
-| **Claude Code** (`claude-code/.claude/skills/jevify/SKILL.md`) | A terminal against a repository | Available source files, searching for LLM SDKs and call-sites | `jevify-report.md` |
+| **Repository audit** (`claude-code/.claude/skills/jevify/SKILL.md`) | A coding agent with access to the repository and support for `SKILL.md` instructions | Available source files, searching for LLM SDKs and call-sites | `jevify-report.md` |
+
+The repository-audit file is currently stored under `claude-code/`. Install it using your client's supported skill location and invocation syntax. Compatibility has not been tested across every client.
 
 ## Structure
 
@@ -38,18 +42,16 @@ jevify/
 
 ## Quick start
 
-- **Claude Code:** copy `claude-code/.claude/skills/jevify/` to your repository's `.claude/skills/`, or to `~/.claude/skills/` for global use. Run `/jevify`. See [installation instructions](claude-code/INSTALL.md).
+- **Coding agents:** use the [repository-audit skill](claude-code/.claude/skills/jevify/SKILL.md). Install the skill folder in the location supported by your client, then invoke it using that client's skill interface. The existing [installation guide](claude-code/INSTALL.md) covers Claude Code; other clients require their own setup.
 - **Lovable:** import [lovable-skill-jevify](https://github.com/lucioamor/lovable-skill-jevify) as a workspace skill. Run `/jevify` inside a project. See [installation instructions](lovable/INSTALL.md).
 
 ## Publishing and maintenance
 
-- Full project: [lucioamor/jevify](https://github.com/lucioamor/jevify).
+- Public project repository: [lucioamor/jevify](https://github.com/lucioamor/jevify).
 - Canonical Lovable skill: [lovable-skills/skills/jevify](https://github.com/lucioamor/lovable-skills/tree/main/skills/jevify).
 - Import package: [lucioamor/lovable-skill-jevify](https://github.com/lucioamor/lovable-skill-jevify), with `SKILL.md` at the root.
 
-Edit the Lovable variant in the catalog and keep this project's `lovable/SKILL.md` synchronized. The Claude Code variant and report template are maintained here. The catalog's sync workflow publishes the standalone import package; importing users must re-import to update their installed skill.
-
-Always write **jevify** in lowercase. Keep public repository documentation and GitHub descriptions in English.
+The repository-audit skill and report template are maintained here. The Lovable variant currently comes from the catalog, whose sync workflow publishes the standalone import package. Re-import the package to update an installed Lovable skill.
 
 ## Principle
 
@@ -57,7 +59,7 @@ Always write **jevify** in lowercase. Keep public repository documentation and G
 
 ## Diagnostic boundaries
 
-- Never edits source code; the Claude Code variant writes only the report.
+- Never edits source code; the repository-audit variant writes only the report.
 - The current skill reports effects as hypotheses, without promised numerical gains. Validate quality, latency, cost, and fallback behavior before claiming improvements.
 - Targets runtime AI usage, not Lovable build credits.
 - Check current JEV availability and integration requirements before planning production use.
