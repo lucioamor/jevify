@@ -1,6 +1,9 @@
-# jevify diagnostics in Claude Code
+# jevify in Claude Code
 
-`/jevify` is the jevify project's basic **read-only** skill. It audits runtime AI call-sites and identifies candidates for structured decisions with JEV. It writes a single report file (`jevify-report.md`) without changing source code.
+The jevify skill has two commands:
+
+- `/jevify` audits runtime AI call-sites and identifies candidates for structured decisions with JEV. It writes a single report file (`jevify-report.md`) and never changes source code.
+- `/jevify migrate <finding>` moves **one** approved candidate to JEV. It presents a plan, edits code only after you approve it, and starts in shadow mode.
 
 ## Install in a repository
 
@@ -21,7 +24,7 @@ mkdir -p .claude/skills/jevify
 cp path/to/jevify/claude-code/.claude/skills/jevify/SKILL.md .claude/skills/jevify/
 ```
 
-Commit it to make the command available to your team:
+Commit it to make the commands available to your team:
 
 ```bash
 git add .claude/skills/jevify/SKILL.md
@@ -37,6 +40,16 @@ mkdir -p ~/.claude/skills/jevify
 cp path/to/jevify/claude-code/.claude/skills/jevify/SKILL.md ~/.claude/skills/jevify/
 ```
 
+## Connect the jevify MCP server (optional)
+
+With the server connected, the skill runs in **MCP mode**: the jevify service classifies call-sites, keeps your reports private under your account, and supplies migration plans. Without it, the skill runs in **local mode**: nothing leaves your machine and no account is needed.
+
+```bash
+claude mcp add --transport http jevify https://jevify.lovable.app/mcp
+```
+
+Then sign in through `/mcp` inside Claude Code. In MCP mode the skill asks before sending files, and never sends `.env` files or credentials. The service may send the code it receives to an AI provider for classification.
+
 ## Usage
 
 From the repository root, inside Claude Code:
@@ -47,24 +60,32 @@ From the repository root, inside Claude Code:
 
 You can also ask: "jevify this repo."
 
-The skill will:
+The audit will:
 
-1. Search for calls to OpenAI, Anthropic, Gemini, and other providers in Edge Functions, API routes, and server files.
+1. Search for calls to OpenAI, Anthropic, Gemini, the Vercel AI SDK, LangChain, AI gateways, and other providers in Edge Functions, API routes, and server files.
 2. Classify each call-site (`JEV_CANDIDATE`, `GENERATION_REQUIRED`, and other categories).
-3. Propose Choice/Score/Noul, state, and risk for each candidate.
+3. Propose Choice/Score/Noul, state, and risk for each candidate, with a finding id (`path#line`).
 4. Write `jevify-report.md` at the repository root and print a summary.
 
-## After the report
-
-Plan implementation and validation separately. The [jevify repository](https://github.com/lucioamor/jevify) houses the skill variants, instructions, and report template. It does not yet offer a migration skill or executable JEV integration.
+Then migrate one candidate:
 
 ```text
-/jevify       → diagnose and recommend (read-only)
-follow-up     → implement and validate recommendations
+/jevify migrate supabase/functions/triage/index.ts#42
 ```
+
+The migration will:
+
+1. Re-check that the call-site is still a candidate.
+2. Present a plan: the JEV request, thresholds, fallback to the current LLM path, boundary cases, and a validation plan. It checks the current TypeSafe docs rather than relying on memory.
+3. After your approval, add the JEV decision next to the existing call behind an `off | shadow | on` flag, defaulting to `shadow`. The LLM result stays authoritative in shadow mode.
+4. Tell you which secret to add, what to watch in the shadow logs, and the cutover criterion, and log the migration in `jevify-report.md`.
+
+Switching the flag to `on` is a separate decision, once shadow data meets the criterion.
 
 ## Notes
 
-- The skill never edits source code; it writes only the report.
-- The current skill reports expected effects as hypotheses, without promised numbers. Validate quality, latency, cost, and fallback behavior in shadow mode.
-- Check current JEV availability and integration requirements before production use.
+- `/jevify` never edits source code; it writes only the report.
+- `/jevify migrate` changes one call-site per run, only after you approve the plan, and never removes the existing LLM path.
+- Expected effects are hypotheses, without promised numbers. Validate quality, latency, cost, and fallback behavior in shadow mode.
+- Keep `TYPESAFE_API_KEY` in your platform's secret store, never in client code or commits.
+- Check current JEV availability, pricing, and data terms before production use.
