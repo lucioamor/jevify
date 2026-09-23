@@ -25,7 +25,7 @@ JEV is TypeSafe's decision model ([docs](https://docs.typesafe.ai)); jevify orga
 
 The skill asks before sending files and never sends `.env` files or credentials. In MCP mode the service may send the code it receives to an AI provider for classification. The service does not edit your code, connect to a JEV product API, or publish usage/impact statistics.
 
-The `migrate` MCP tool is planned. Until the server offers it, `/jevify migrate` plans locally in both modes.
+`/jevify migrate` uses the service's `migrate` tool when the connected server lists it, and plans locally otherwise. The tool returns a validated plan (native request, composition code behind the flag, thresholds, fallback, boundary cases, validation, rollback) and caps high-risk decisions at shadow mode. It never edits code or calls JEV.
 
 ## Choose your environment
 
