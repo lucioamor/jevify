@@ -5,3 +5,8 @@ Desktop.ini
 .env.*
 !.env.example
 jevify-report.md
+
+# Private working notes: never publish
+.agents/
+reviews/
+launch/producthunt.md
