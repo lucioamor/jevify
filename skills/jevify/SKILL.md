@@ -37,7 +37,7 @@ Before uploading, list the exact file count and paths and obtain consent. Never 
 
 ## Mode contract
 
-**Local:** inspect files directly and produce the report. **MCP:** the jevify service tools provide triage, not a verdict. The service classifier sees a narrow window around a call and may not see how the response is consumed. For every service result classified `JEV_CANDIDATE` or `DETERMINISTIC_CODE`, read the consumer and set `verified` to `confirmed`, `disputed`, or `not checked`. Preserve the service result; put disagreements and evidence in **Reviewer notes**.
+**Local:** inspect files directly and produce the report. **MCP:** the jevify service tools provide triage, not a verdict. The service classifier uses regexes over roughly three lines before through ten lines after a call and may not see how the response is consumed. For every service result classified `JEV_CANDIDATE` or `DETERMINISTIC_CODE`, read the consumer and set `verified` to `confirmed`, `disputed`, or `not checked`. Preserve the service result; put disagreements and evidence in **Reviewer notes**.
 
 The service may offer `audit_repository`, `audit_files`, `classify_ai_callsite`, `generate_jevify_report`, and `migrate`. Follow the live tool schema. If a tool fails, report it and continue locally; do not label local output as service output.
 

@@ -1,1 +1,1 @@
-export function Field(){ return <label htmlFor="email">Email</label>; }
+export const field = { label: "Email", input: { type: "email" } };
