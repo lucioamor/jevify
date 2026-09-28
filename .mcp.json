@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "jevify": {
+      "type": "http",
+      "url": "https://jevify.lovable.app/mcp"
+    }
+  }
+}

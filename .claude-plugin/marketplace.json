@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "jevify",
+  "version": "1.3.0",
+  "description": "The official jevify plugin marketplace.",
+  "owner": {
+    "name": "Lucio Amorim"
+  },
+  "plugins": [
+    {
+      "name": "jevify",
+      "description": "Audit runtime AI decisions and migrate approved candidates to JEV with shadow validation.",
+      "version": "1.3.0",
+      "author": {
+        "name": "Lucio Amorim"
+      },
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}
