@@ -1,58 +1,76 @@
 # jevify report template
 
-Reference format for the report produced by `/jevify` in local mode. The Lovable variant returns it in chat; the repository variant writes `jevify-report.md`. In MCP mode the jevify service renders its own report, and the agent saves it with the same header line. Replace the illustrative entries with observed findings. Do not invent measurements.
-
----
-
-Mode: local · Date: YYYY-MM-DD · Audit id: — (MCP mode only)
+Mode: local | MCP · Date: YYYY-MM-DD · Audit id: — · Skill: v1.3.0
 
 ## Summary
 
-`N` runtime AI call-sites inspected · `X` JEV candidates · `Y` generation tasks retained · `Z` deterministic code candidates · `W` other findings.
+`N` runtime call-sites inspected · `X` candidates · `Y` generation tasks retained · `Z` deterministic findings · `U` unknown.
 
 ## Inventory
 
-| finding | purpose | classification | primitive | risk | reason |
-|---|---|---|---|---|---|
-| `supabase/functions/triage/index.ts#42` | Routes a ticket | JEV_CANDIDATE | Choice | LOW | Uses only the category label |
-| `supabase/functions/reply/index.ts#15` | Writes a customer reply | GENERATION_REQUIRED | — | — | Sends generated prose to the user |
-| `src/api/validate.ts#8` | Validates email format | DETERMINISTIC_CODE | — | — | Exact rules determine the result |
+| finding | purpose | classification | primitive | risk | verified | evidence |
+|---|---|---|---|---|---|---|
+| `path/file.ts#42` | Route a ticket | JEV_CANDIDATE | Choice | LOW | confirmed | Consumer dispatches only the selected queue |
+
+`verified` is `confirmed`, `disputed`, or `not checked`. In MCP mode it records the agent's consumer-side verification without rewriting the service classification.
 
 ## Candidate details
 
-### `supabase/functions/triage/index.ts#42`
+### `path/file.ts#42`
 
 ```text
-finding:      supabase/functions/triage/index.ts#42
-current:      LLM classifies tickets as sales, support, or cancellation and returns JSON
-recommended:  Choice["sales","support","cancellation","other","insufficient_context"]
-              state: { message, channel, customer_plan }
-              question: which team handles the primary request in `ticket.message`
-effect:       hypothesized reduction in latency or runtime AI cost; requires measurement
-architecture: JEV decision → validated confidence gate → current LLM path as fallback
-risk:         LOW
-next step:    /jevify migrate supabase/functions/triage/index.ts#42
+current:      what the current call decides and how the consumer uses it
+recommended:  Choice + minimal state + atomic question
+pattern:      route
+cookbook:     URL discovered from https://docs.typesafe.ai/llms.txt at audit time
+effect:       hypothesis to measure; no numerical promise
+architecture: shadow comparison → calibrated action policy → current path fallback
+next step:    /jevify migrate path/file.ts#42
 ```
 
-## Retained generation tasks
+## Retained generation
 
-- `supabase/functions/reply/index.ts#15` — writes a customer reply; generation is required.
+- List prose/code generation that must remain generation.
+
+## Consolidation
+
+| shared context | current calls | proposed parallel questions | evidence | risk |
+|---|---|---|---|---|
+
+## Opportunities (`--wide`)
+
+| location | semantic work | evidence | risk | possible direction |
+|---|---|---|---|---|
+
+These are opportunities, never call-site candidates.
+
+## Reviewer notes
+
+- Preserve MCP outputs and document disputed classifications with consumer evidence.
 
 ## Coverage
 
-- Searched: server files, Edge Functions, and API routes; dependencies, build output, tests, and docs skipped.
-- Files read: `N`. Unreadable or skipped: list them, or "none".
+- Scope searched, files read, skipped/unreadable files, and known blind spots.
+
+## Shadow validation plan
+
+- Criterion fixed before collection:
+- Labeled divergence sample and authority:
+- Cost per decision, current path:
+- Cost per decision, JEV path:
+- Incremental shadow cost:
+- Fallback rate:
+- Latency p50/p95 for each path:
+- Error and risk thresholds:
+- No-go conditions:
+
+Agreement alone is not correctness. Confidence is not permission to act. Choice selection and action thresholds are separate policies; a Noul near `0.5` is a tie.
 
 ## Migration log
 
-Written by `/jevify migrate`. Leave empty until a migration runs.
-
 | date | finding | state | flag |
 |---|---|---|---|
-| YYYY-MM-DD | `supabase/functions/triage/index.ts#42` | shadow | `JEVIFY_TRIAGE_MODE` |
 
 ## Footer
 
-- Project reference: https://github.com/lucioamor/jevify
-- Check current JEV availability, pricing, and data terms before production use.
-- Expected effects are **hypotheses**, not promises. Validate quality, latency, cost, and fallback behavior in shadow mode before claiming improvements.
+Project: https://github.com/lucioamor/jevify · Check current availability, pricing, data handling, API, SDK, and models before production use. Expected effects remain hypotheses until measured.

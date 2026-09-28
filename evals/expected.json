@@ -1,0 +1,15 @@
+{
+  "classify-and-reply.ts": {"class":"JEV_CANDIDATE+GENERATION_REQUIRED","primitive":"Choice","risk":"MEDIUM","verified":"confirmed"},
+  "consolidation.ts": {"class":"JEV_CANDIDATE","primitive":"Choice+Score+Noul","risk":"MEDIUM","verified":"confirmed"},
+  "customer-response.ts": {"class":"GENERATION_REQUIRED","primitive":null,"risk":null,"verified":"confirmed"},
+  "eligibility-noul.ts": {"class":"JEV_CANDIDATE","primitive":"Noul","risk":"MEDIUM","verified":"confirmed"},
+  "embedding-rerank.ts": {"class":"EMBEDDING_SEARCH+JEV_CANDIDATE","primitive":"Score","risk":"LOW","verified":"confirmed"},
+  "high-risk-refund.ts": {"class":"JEV_CANDIDATE","primitive":"Noul","risk":"HIGH","verified":"confirmed"},
+  "http-ok.ts": {"class":"DETERMINISTIC_CODE","primitive":null,"risk":null,"verified":"confirmed"},
+  "prompt-constant.ts": {"class":"JEV_CANDIDATE","primitive":"Choice","risk":"LOW","verified":"confirmed"},
+  "prompt-text.ts": {"class":"NOT_A_CALLSITE","primitive":null,"risk":null,"verified":"confirmed"},
+  "regex-intent.ts": {"class":"WIDE_OPPORTUNITY","primitive":null,"risk":"MEDIUM","verified":"confirmed"},
+  "ticket-router.ts": {"class":"JEV_CANDIDATE","primitive":"Choice","risk":"LOW","verified":"confirmed"},
+  "ui-label.ts": {"class":"NOT_A_CALLSITE","primitive":null,"risk":null,"verified":"confirmed"},
+  "urgency-score.ts": {"class":"JEV_CANDIDATE","primitive":"Score","risk":"MEDIUM","verified":"confirmed"}
+}

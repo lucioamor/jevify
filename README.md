@@ -1,88 +1,70 @@
 # jevify
 
-> **Find the AI calls in your app that are really decisions, then move them to JEV safely.** The **jevify** skill has two commands: `/jevify` audits runtime AI calls and proposes candidates for JEV (Choice/Score/Noul) without changing source code; `/jevify migrate` moves one approved candidate to JEV, starting in shadow mode.
->
-> **jevify** is the project. The **jevify skill** is how an agent uses it; the **jevify MCP server** is where the method runs when connected.
+Runtime model calls often hide small structured decisions inside expensive or hard-to-validate generation paths.
 
-## Project, skill, and service
+## Before and after
 
-| Component | What it is | Where to find it |
-|---|---|---|
-| **Project / repository — jevify** | The public home for the skill, documentation, and report format. | [Public repository](https://github.com/lucioamor/jevify) · [Site](https://jevify.lovable.app) |
-| **Skill — jevify** | Instructions an agent follows: `/jevify` to audit, `/jevify migrate <finding>` to migrate one candidate. It uses the MCP server when connected and runs locally otherwise. | Skill files and installation options below |
-| **Service — jevify MCP** | A hosted application at [jevify.lovable.app](https://jevify.lovable.app) whose MCP server, REST API, and console classify call-sites and keep reports private under your account. Its implementation is maintained separately. | `https://jevify.lovable.app/mcp` (OAuth) |
+```ts
+// Before: a model call owns the route.
+// The application trusts the generated label immediately.
+const result = await generateObject({
+  schema: z.object({ queue: z.enum(["sales", "support", "other"]) }),
+  prompt: `Route this ticket: ${ticket.message}`,
+});
+return dispatch(result.object.queue);
 
-JEV is TypeSafe's decision model ([docs](https://docs.typesafe.ai)); jevify organizes the diagnosis and the migration. Auditing requires no JEV API access. A migration needs a TypeSafe API key, kept server-side.
-
-## Two modes
-
-| | MCP mode | Local mode |
-|---|---|---|
-| **When** | The jevify MCP server is connected and you agree to send the relevant files | No connection, private code you don't want to send, or no consent yet |
-| **Audit** | The service classifies call-sites and returns a report stored privately under your account | The agent follows the method in the skill; nothing leaves your machine or project |
-| **Migration plan** | Comes from the service's `migrate` tool | The agent drafts it from the current TypeSafe docs |
-| **Code changes** | Applied by your agent, after you approve the plan | Same |
-
-The skill asks before sending files and never sends `.env` files or credentials. In MCP mode the service may send the code it receives to an AI provider for classification. The service does not edit your code, connect to a JEV product API, or publish usage/impact statistics.
-
-`/jevify migrate` uses the service's `migrate` tool when the connected server lists it, and plans locally otherwise. The tool returns a validated plan (native request, composition code behind the flag, thresholds, fallback, boundary cases, validation, rollback) and caps high-risk decisions at shadow mode. It never edits code or calls JEV.
-
-## Choose your environment
-
-The method is independent of a particular AI client. Use the skill in an environment that can load its instructions and inspect the source being audited. Skill discovery, invocation, file access, and MCP connections depend on the client; support for MCP alone does not establish support for installing a skill.
-
-| Variant | Runs in | Inspects | Output |
-|---|---|---|---|
-| **Lovable** (`lovable/SKILL.md`) | The Lovable builder | Runtime AI calls in the accessible project, including Edge Functions and AI gateway calls | Report and migration plan in chat |
-| **Repository** (`claude-code/.claude/skills/jevify/SKILL.md`) | A coding agent with access to the repository and support for `SKILL.md` instructions | Available source files, searching for LLM SDKs and call-sites | `jevify-report.md`, including a migration log |
-
-The repository file is currently stored under `claude-code/`. Install it using your client's supported skill location and invocation syntax. Compatibility has not been tested across every client.
-
-## Structure
-
-```text
-jevify/
-├── README.md
-├── report-template.md
-├── lovable/
-│   ├── SKILL.md
-│   └── INSTALL.md
-└── claude-code/
-    ├── INSTALL.md
-    └── .claude/skills/jevify/SKILL.md
+// After: shadow first; the existing answer remains authoritative.
+// Cutover remains a separate, evidence-based decision.
+const current = result.object.queue;
+const shadow = mode === "off" ? null : await askJev(ticket);
+logDecision({ current, shadow });
+if (mode !== "on" || !shadow) return dispatch(current);
+return dispatch(shadow.answer); // action policy is calibrated separately
 ```
 
-## Quick start
+## What the audit produces
 
-- **Coding agents:** install the [repository skill](claude-code/.claude/skills/jevify/SKILL.md) in the location your client supports. Optionally connect the MCP server; in Claude Code: `claude mcp add --transport http jevify https://jevify.lovable.app/mcp`. Run `/jevify`, then `/jevify migrate <finding>`. See the [installation guide](claude-code/INSTALL.md).
-- **Lovable:** import [lovable-skill-jevify](https://github.com/lucioamor/lovable-skill-jevify) as a workspace skill. Optionally add `https://jevify.lovable.app/mcp` under **Connectors** as a custom MCP server. Run `/jevify` inside a project. See [installation instructions](lovable/INSTALL.md).
+This excerpt is generated from the repository's [`evals/`](evals/) fixtures:
 
-## Publishing and maintenance
+```text
+13 fixtures inspected · 7 files with JEV candidate work · 2 generation tasks retained
+evals/fixtures/ticket-router.ts#4 | JEV_CANDIDATE | Choice | LOW | confirmed
+evals/fixtures/customer-response.ts#3 | GENERATION_REQUIRED | — | — | confirmed
+Consolidation: three calls over one ticket → one request with parallel questions
+Opportunity (--wide): regex intent parser; evidence only, never a call-site candidate
+```
 
-- Public project repository: [lucioamor/jevify](https://github.com/lucioamor/jevify).
-- Canonical Lovable skill: [lovable-skills/skills/jevify](https://github.com/lucioamor/lovable-skills/tree/main/skills/jevify).
-- Import package: [lucioamor/lovable-skill-jevify](https://github.com/lucioamor/lovable-skill-jevify), with `SKILL.md` at the root.
+## Install
 
-The repository skill and report template are maintained here. The Lovable variant currently comes from the catalog, whose sync workflow publishes the standalone import package. Re-import the package to update an installed Lovable skill.
+- Agent skills: `npx skills add lucioamor/jevify`
+- Claude Code: `claude plugin marketplace add lucioamor/jevify` then `claude plugin install jevify@jevify` (**untested until the v1.3 branch is published**)
+- Lovable: import `https://github.com/lucioamor/lovable-skill-jevify` under **Settings → Skills → Add → Import from GitHub**
 
-## Principle
+See [INSTALL.md](INSTALL.md) for MCP connection details.
 
-**Use LLMs for language. Use code for rules. Evaluate JEV for structured decisions.**
+## Commands
 
-## Boundaries
+- `/jevify` audits and reports without editing source; add `--wide` for non-call semantic-code opportunities.
+- `/jevify migrate <finding>` plans and, after explicit approval, migrates one candidate in shadow mode.
 
-- `/jevify` never edits source code; the repository variant writes only the report.
-- `/jevify migrate` changes one call-site per run, only after you approve the plan. It adds the JEV decision next to the existing call behind an `off | shadow | on` flag, starts in shadow mode, and never removes the existing AI path.
-- Effects are reported as hypotheses, without promised numerical gains. Validate quality, latency, cost, and fallback behavior in shadow mode before claiming improvements.
-- Targets runtime AI usage, not Lovable build credits.
-- Check current JEV availability, pricing, and data terms before production use.
+## How classification works
 
-## Authorship and maintenance
+In local mode, the agent reads call-sites, prompts, response parsing, and consumers, then writes `jevify-report.md` when it has file access or reports in Lovable chat. Local mode sends no code to the jevify service, although the agent itself may use remote processing.
 
-This project was created by [Lucio Amorim](https://linkedin.com/in/lucioamorim), Lovable Ambassador.
+In MCP mode, the **jevify service** classifies a narrow source window and stores its service report under the authenticated account. That is triage: the agent must inspect the consumer for every `JEV_CANDIDATE` and `DETERMINISTIC_CODE`, preserve the service result, and record confirmation or disagreement. The service also exposes an optional decision proxy at `/api/public/jevify/decision` and a harness; the audit and `migrate` flows do not call JEV.
 
-When reusing, redistributing, or citing this work, keep the attribution credits and include a link to this repository.
+## Use with TypeSafe's official skill
 
-## License
+Install the official TypeSafe agent skill linked from [`llms.txt`](https://docs.typesafe.ai/llms.txt) for detailed question design. `/jevify` identifies where a migration may fit and governs how to validate it safely; it does not reproduce TypeSafe's skill.
 
-The skills, instructions, and report template are licensed under [Creative Commons Attribution 4.0 International](./LICENSE) (`CC BY 4.0`).
+## Honest limits
+
+- Static inspection can miss dynamic calls and cannot prove production behavior.
+- MCP classifications see limited context and require consumer verification.
+- Agreement with the current model does not prove correctness; label divergence samples.
+- Availability, pricing, data terms, API fields, SDKs, and model names must be checked before production use.
+- HIGH-risk decisions remain shadow-only until an authorized human approves a separately defined action policy.
+
+## License and authorship
+
+Created by [Lucio Amorim](https://linkedin.com/in/lucioamorim). Licensed under [CC BY 4.0](LICENSE); retain attribution and indicate changes when redistributing.
