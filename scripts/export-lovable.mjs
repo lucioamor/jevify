@@ -19,6 +19,8 @@ await writeFile(
 
 \`/jevify\` audits the runtime AI calls in a Lovable project (Edge Functions and AI gateway calls included), separates generation from structured decisions, and proposes JEV candidates in a report returned in chat. It never edits code. \`/jevify migrate <finding>\` moves one approved candidate to JEV behind an \`off | shadow | on\` flag, starting in shadow mode and keeping the existing AI path.
 
+Everyone talks about performance gains and token savings; jevify shows what that would look like in your project — which calls, what changes — and measures it in shadow on your own traffic before anything switches over.
+
 It targets the deployed app's runtime AI usage, not Lovable build credits. Effects are hypotheses until measured in shadow mode.
 
 ## Import into Lovable

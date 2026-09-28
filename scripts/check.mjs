@@ -42,6 +42,7 @@ const all = [];
 async function walk(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     if ([".git", "node_modules", "reviews", ".agents"].includes(entry.name)) continue;
+    if (dir === root && entry.name === "cookbooks") continue; // local, unpublished copies of TypeSafe docs
     if (dir === root && entry.name === "launch") continue;
     const p = resolve(dir, entry.name);
     entry.isDirectory() ? await walk(p) : all.push(p);
@@ -74,6 +75,9 @@ const expected = JSON.parse(await read("evals/expected.json"));
 const keys = Object.keys(expected).sort();
 if (JSON.stringify(fixtures) !== JSON.stringify(keys)) errors.push(`expected.json coverage mismatch: fixtures=${fixtures} expected=${keys}`);
 for (const [file, e] of Object.entries(expected)) if (!e.class || !e.why) errors.push(`expected.json ${file} needs "class" and "why"`);
+
+// Every expected cookbook is one the skill's routing table names.
+for (const [file, e] of Object.entries(expected)) if (e.cookbook && !skill.includes(`\`${e.cookbook}\``)) errors.push(`expected.json ${file} names cookbook "${e.cookbook}", absent from SKILL.md`);
 
 // When the catalog sits next to this repository, its mirror must be current.
 const mirror = resolve(root, "..", "lovable-skills", "skills", "jevify");

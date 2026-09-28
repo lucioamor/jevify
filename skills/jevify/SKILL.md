@@ -9,10 +9,10 @@ description: Run /jevify to audit an app's runtime AI calls (repository or Lovab
 
 ## Skill identity
 
-- Version: `v1.3.0`
+- Version: `v1.4.0`
 - Canonical source: `https://github.com/lucioamor/jevify`
 - Before the final response, compare this version with the canonical `VERSION.md` when reachable.
-- End with: `Skill: /jevify v1.3.0 · Version status: {current | update available | unverified} · Source: https://github.com/lucioamor/jevify`. Use `current` or `update available` only after a successful check.
+- End with: `Skill: /jevify v1.4.0 · Version status: {current | update available | unverified} · Source: https://github.com/lucioamor/jevify`. Use `current` or `update available` only after a successful check.
 
 ## Commands
 
@@ -85,37 +85,71 @@ UNKNOWN              evidence is insufficient → list it for the user to confir
 ```
 
 - If the consumer renders, sends, stores as prose, or executes the text, it is generation. Words in the prompt ("announcement", "label") never decide the class; the consumer does.
+- Exception: if every character of the output must come from the input and the model only decides *which* span, part, or structure (a phone number found in the text, a date's parts, headings in a flattened document), it is a candidate — code finds or renders the text, JEV picks. If the value must be written, summarized, or inferred, it stays generation.
+- An existing LLM call that judges, moderates, checks citations, or validates another model's output is itself a decision call; classify it like any other.
 - Split **composites** ("classify AND draft a reply"): the decision part is a candidate; the draft stays generation.
-- After retrieval, a relevance re-rank may separately be a candidate (Score per item, or Choice).
+- After retrieval, a relevance re-rank or passage filter may separately be a candidate (Noul or Score per item).
 - Risk (`LOW`, `MEDIUM`, `HIGH`) records the cost of a wrong answer and is independent of the class. Money, access, destructive actions, and safety decisions are at least `HIGH`.
 - Give each finding the id `path#line`.
 
 ### 3. Primitive, pattern, and cookbook
 
-- one of N known options → **Choice**, always with `other` and `insufficient_context` options
-- degree on an ordered scale → **Score**, with concrete, self-standing level descriptions
-- whether a condition holds → **Noul**, with explicit true/false criteria
+Only after classification, record four separate fields per candidate. They are different kinds of thing; do not collapse them.
 
-Assign one pattern: **route**, **select instead of generate**, **re-rank**, **composite score**, or **verify and escalate**. At audit time open `https://docs.typesafe.ai/llms.txt`, find the closest cookbook, and record its URL; if the docs are unreachable, write `cookbook: unverified`. Recommend TypeSafe's official agent skill (linked from `llms.txt`) for detailed question design; jevify owns discovery and safe migration.
+- **Primitive** — the question type:
+  - one of N known options → **Choice**, with `other` and `insufficient_context` options (probabilities sum to 1, so some option always wins; when "no option fits" is itself likely, also ask a Noul such as "an answer exists")
+  - degree on an ordered scale → **Score**, with concrete, self-standing level descriptions; when a middle outcome is a real action (send to review), give it its own level instead of tuning a threshold
+  - whether a condition holds → **Noul**, with explicit true/false criteria
+- **Pattern** — TypeSafe's architectural patterns (`https://docs.typesafe.ai/patterns.md`): **Intent routing**, **Confidence-gated routing**, **Composite scoring**, **Speculative fan-out**; more than one may apply, or `—`.
+- **Cookbook** — the closest official recipe (primary, plus a companion when one adds a missing piece), chosen with the table below (slug → `https://docs.typesafe.ai/cookbooks/<slug>.md`) and confirmed in `https://docs.typesafe.ai/llms.txt` at audit time; a cookbook added there later may fit better than any row. If the docs are unreachable, keep the slug and mark it `unverified`. No row fits → `cookbook: none`; never force a match.
+- **Fit** — one line on why it matches and what the app must adapt (different state, fewer options, other risk).
+
+| signal in the code and consumer | primitive | pattern | cookbook |
+|---|---|---|---|
+| a label picks a queue, handler, or branch | Choice | Intent routing | `classification_using_confidence` |
+| `tool_choice` or intent → function with closed-set arguments | Choice per name and argument; Noul "was it stated" | Intent routing | `function_calling` |
+| picking from a large catalog (skills, products, templates) | Choice to rank, Nouls to re-check the top few | Intent routing | `skill_suggestion` |
+| deep taxonomy, or more options than one Choice allows | Choice per level | Intent routing | `hierarchical_classification` |
+| ordering a retrieved shortlist | Noul (or Score) per item, sorted in code | — | `rerank_typesafe` |
+| filtering retrieved passages before generation | Noul battery per passage | Composite scoring | `classifying_rag_passages` |
+| "where in this document is the answer / is there one" | Choice over line ids + Noul | — | `semantic_find` |
+| "are these two records the same" (dedupe, merge) | Score + Noul per field | Confidence-gated routing | `entity_alignment` |
+| several decisions about the same record | mixed, one request | Speculative fan-out | `parallel_questions` |
+| weighted multi-factor score (lead, priority, fit) | Score/Noul battery, combined in code | Composite scoring | — |
+| moderation or safety screen on model input or output | Noul battery + Score severity | Confidence-gated routing | `llm_guardrails` |
+| a judge checks whether a citation supports a claim | Choice (supports, contradicts, silent) | — | `citation_check` |
+| a judge checks extracted fields, then retries with a bigger model | Noul per field | Confidence-gated routing | `sde_cascade` |
+| a value that appears verbatim in the text (email, phone, amount, id) | Choice among code-found spans | — | `pre_parsed_value_extraction_cookbook` |
+| a date stated absolutely or relatively | Choice per date part; code resolves | — | `date_extraction_cookbook` |
+| structure of text that must keep its words (headings, joins, segments) | Noul/Choice per line or block; code renders | — | `autoformat` |
+| a wrong answer is costly and the model must be able to abstain | as above | Confidence-gated routing | companion: `consistency_noul_cookbook` or `consistency_choice_cookbook` |
+
+`autoresearch_feature_discovery` applies only when the app trains its own model on text features; mention it under **Opportunities**, never as a migration. Cookbook results (accuracy, cost, speed multiples) are TypeSafe's measurements on its data: cite the recipe, never its numbers, as the expected effect.
+
+Recommend TypeSafe's official agent skill (linked from `llms.txt`) for detailed question design; jevify owns discovery and safe migration.
 
 Decision policy:
 - Picking the best option uses the highest Choice probability; no universal cutoff.
-- Triggering an action uses a threshold calibrated to the cost of error, on the user's data.
+- Triggering an action uses a threshold calibrated to the cost of error, on the user's data. Gate on the answer's reported confidence (how concentrated the probabilities are), not only on the winner's probability.
+- A low-confidence answer can fall back to a coarser answer (the parent category), the current path, or human review — choose by cost of error.
 - A Noul near `0.5` is a tie, not medium intensity.
+- The model reads; code computes. Dates, arithmetic, normalization, and copying values stay in code.
 - Confidence describes certainty; it is never permission to act. See `https://docs.typesafe.ai/confidence.md`.
 
 ### 4. Consolidation and wide opportunities
 
 - **Consolidation:** when several model calls decide things about the same ticket, lead, document, or record, propose one JEV request with parallel questions over shared state. Report under **Consolidation**, separate from candidates.
-- **`--wide` only:** regexes, keyword chains, and intent parsers doing semantic work. Report under **Opportunities** with evidence and risk; never as call-sites or candidates.
+- **`--wide` only:** report under **Opportunities** with evidence, risk, and the closest cookbook; never as call-sites or candidates:
+  - regexes, keyword chains, and intent parsers doing semantic work (a regex that over-finds candidates can feed a JEV pick);
+  - decision points around retained generation where nothing checks today: screening model input or output, checking citations, verifying extracted fields before use.
 
 ### 5. Report
 
 Write (or return in chat) this structure:
 
-1. **Header:** `Mode: local|MCP · Date · Audit id (MCP only) · Skill: v1.3.0`, then one summary line: N call-sites, X candidates, split by class.
+1. **Header:** `Mode: local|MCP · Date · Audit id (MCP only) · Skill: v1.4.0`, then one summary line: N call-sites, X candidates, split by class.
 2. **Inventory:** `finding | purpose | classification | primitive | risk | verified | evidence`.
-3. **Candidate details**, one block each: `current` (what the call decides and how the consumer uses it), `recommended` (primitive + minimal state + question), `pattern`, `cookbook`, `effect` (direction only), `architecture` (shadow comparison → calibrated action policy → current path as fallback), `next step: /jevify migrate path#line`.
+3. **Candidate details**, one block each: `current` (what the call decides and how the consumer uses it), `recommended` (primitive + minimal state + question), `pattern`, `cookbook` (primary; companion if any), `fit`, `effect` (direction only), `architecture` (shadow comparison → calibrated action policy → current path as fallback), `next step: /jevify migrate path#line`.
 4. **Retained generation**, briefly, so nothing looks missed.
 5. **Consolidation** and, with `--wide`, **Opportunities**.
 6. **Reviewer notes** (MCP mode).
@@ -138,12 +172,12 @@ One call-site per run.
 
 ### 2. Plan
 
-In MCP mode, if the service offers `migrate`, call it and present its plan; annotate disagreements instead of rewriting it. Otherwise plan locally, starting from `https://docs.typesafe.ai/llms.txt` (API, SDK, models, chosen primitive, closest cookbook). Never rely on remembered endpoints, field names, limits, or model ids.
+In MCP mode, if the service offers `migrate`, call it and present its plan; annotate disagreements instead of rewriting it. Otherwise plan locally, starting from `https://docs.typesafe.ai/llms.txt` (API, SDK, models, known issues for the current model, chosen primitive, pattern, and the finding's cookbook). Read the cookbook before writing questions and reuse its structure; adapt state and criteria to this app. Never rely on remembered endpoints, field names, limits, or model ids.
 
 The plan covers:
 - **Current behavior:** prompt intent, model, and which response fields the code uses.
 - **Request:** minimal named state; questions that point at state with backticked paths; criteria for every option, level, or true/false outcome. Dates, counts, and arithmetic are computed in code and enter state as facts. If other calls decide about the same state, say whether to consolidate.
-- **Composition:** thresholds as named constants, marked as placeholders until tuned; `other`, `insufficient_context`, low confidence, or a Noul near the threshold → current path or human review. A service error or timeout is never a negative answer → current path.
+- **Composition:** thresholds as named constants in one place, marked as placeholders until tuned; `other`, `insufficient_context`, low confidence, or a Noul near the threshold → a coarser answer, the current path, or human review. A service error or timeout is never a negative answer → current path. Code finds candidates before and normalizes values after; JEV never re-types a value.
 - **Placement:** server side only, in the project's stack or the official SDK. Key in the platform's secret store under the name the docs use.
 - **Boundary cases:** 3–5 inputs, including one with injected instructions.
 - **Shadow validation** (below) and **rollback**.
@@ -161,7 +195,7 @@ Show the plan and wait for explicit approval before editing.
 
 ### 4. Shadow validation
 
-Fix the cutover criterion **before** collecting data. Agreement with the current model does not prove correctness: label a sample of disagreements against a human-approved reference. Log per decision, without raw sensitive content unless the app already logs it:
+Fix the cutover criterion **before** collecting data. Agreement with the current model does not prove correctness: label a sample of disagreements against a human-approved reference. The current model is not self-consistent either (even at temperature 0): re-run it a few times on a small sample to measure how often it disagrees with itself, and do not count that noise as JEV error. Log per decision, without raw sensitive content unless the app already logs it:
 
 - finding id, current answer, JEV answer with probability or confidence, labeled outcome when available;
 - cost per decision on both paths and the incremental cost of shadow;

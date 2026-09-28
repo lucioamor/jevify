@@ -2,6 +2,18 @@
 
 Runtime model calls often hide small structured decisions inside expensive or hard-to-validate generation paths.
 
+## Why this exists
+
+Everyone is talking about performance gains and token savings from moving decisions off general-purpose LLMs. The harder question is what that looks like in practice, in *your* app: which calls, which lines, what changes, and how you would see the gain rather than take it on faith.
+
+jevify is built to make that concrete, in three steps you can inspect:
+
+1. **See where it applies.** The audit points at real call-sites (`path#line`), shows how each response is consumed, and separates the bounded decisions — a queue, a score, a yes/no — from the generation that should stay generation. A clean audit is a valid answer.
+2. **Picture the change.** Each candidate gets a before/after sketch: the primitive, the TypeSafe pattern, the closest official cookbook, and what your app would need to adapt.
+3. **Measure it on your own traffic.** `/jevify migrate` runs the new path in shadow beside the current one and logs both: cost per decision, latency p50/p95, agreement, labeled disagreements, fallback rate. The gain becomes a number from your data, or the migration stops.
+
+The pieces share one method: this **skill** is the canonical source, the **MCP service** at `jevify.lovable.app` runs the same audit remotely and keeps reports under your account, and the **Lovable skill** brings it into Lovable projects. Every effect stays a hypothesis until shadow data says otherwise.
+
 ## Before and after
 
 ```ts
@@ -71,6 +83,8 @@ In MCP mode, the **jevify service** classifies a narrow source window and stores
 ## Use with TypeSafe's official skill
 
 Install the official TypeSafe agent skill linked from [`llms.txt`](https://docs.typesafe.ai/llms.txt) for detailed question design. `/jevify` identifies where a migration may fit and governs how to validate it safely; it does not reproduce TypeSafe's skill.
+
+Each candidate is routed, after classification, to a primitive, one of TypeSafe's [patterns](https://docs.typesafe.ai/patterns.md), and the closest official [cookbook](https://docs.typesafe.ai/cookbooks.md), with a line on what the app must adapt. The skill carries only the selection signals; the recipes stay in TypeSafe's live docs, and their measured results are never presented as expected effects for your app.
 
 ## Honest limits
 

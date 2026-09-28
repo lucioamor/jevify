@@ -1,6 +1,6 @@
 # jevify report template
 
-Mode: local | MCP · Date: YYYY-MM-DD · Audit id: — · Skill: v1.3.0
+Mode: local | MCP · Date: YYYY-MM-DD · Audit id: — · Skill: v1.4.0
 
 ## Summary
 
@@ -21,8 +21,9 @@ Mode: local | MCP · Date: YYYY-MM-DD · Audit id: — · Skill: v1.3.0
 ```text
 current:      what the current call decides and how the consumer uses it
 recommended:  Choice + minimal state + atomic question
-pattern:      route
-cookbook:     URL discovered from https://docs.typesafe.ai/llms.txt at audit time
+pattern:      Intent routing (TypeSafe pattern, or —)
+cookbook:     classification_using_confidence (primary) · companion if any; confirmed in llms.txt, else "unverified"
+fit:          why this recipe matches; what the app must adapt
 effect:       hypothesis to measure; no numerical promise
 architecture: shadow comparison → calibrated action policy → current path fallback
 next step:    /jevify migrate path/file.ts#42
@@ -39,8 +40,8 @@ next step:    /jevify migrate path/file.ts#42
 
 ## Opportunities (`--wide`)
 
-| location | semantic work | evidence | risk | possible direction |
-|---|---|---|---|---|
+| location | semantic work | evidence | risk | possible direction | cookbook |
+|---|---|---|---|---|---|
 
 These are opportunities, never call-site candidates.
 
