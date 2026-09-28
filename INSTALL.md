@@ -6,7 +6,7 @@
 npx skills add lucioamor/jevify
 ```
 
-Verified against the current skills.sh CLI documentation. Select `jevify` if the client asks which skill to install.
+The layout (`skills/jevify/SKILL.md`) follows the skills.sh convention. Select `jevify` if the CLI asks which skill to install. **Untested** until the v1.3 branch is merged to `main`.
 
 ## Claude Code plugin
 
@@ -15,7 +15,7 @@ claude plugin marketplace add lucioamor/jevify
 claude plugin install jevify@jevify
 ```
 
-The repository follows the current Claude Code plugin layout with `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `skills/jevify/SKILL.md`, and `.mcp.json`. **Untested:** the commands above have not been executed against a published `goal/v1.3` revision.
+The repository follows the current Claude Code plugin layout with `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `skills/jevify/SKILL.md`, and `.mcp.json`. `claude plugin validate .` passes locally. Plugin skills are namespaced, so the command may appear as `/jevify:jevify`. **Untested:** the install commands have not been run against the published repository.
 
 ## Lovable
 

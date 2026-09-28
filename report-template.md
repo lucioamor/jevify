@@ -12,7 +12,7 @@ Mode: local | MCP · Date: YYYY-MM-DD · Audit id: — · Skill: v1.3.0
 |---|---|---|---|---|---|---|
 | `path/file.ts#42` | Route a ticket | JEV_CANDIDATE | Choice | LOW | confirmed | Consumer dispatches only the selected queue |
 
-`verified` is `confirmed`, `disputed`, or `not checked`. In MCP mode it records the agent's consumer-side verification without rewriting the service classification.
+`verified` is `confirmed`, `disputed`, or `not checked` for service results in MCP mode; it records the agent's consumer-side check without rewriting the service classification. In local mode write `n/a (local)`.
 
 ## Candidate details
 

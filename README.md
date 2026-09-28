@@ -5,34 +5,47 @@ Runtime model calls often hide small structured decisions inside expensive or ha
 ## Before and after
 
 ```ts
-// Before: a model call owns the route.
-// The application trusts the generated label immediately.
+// Before: a model call returns a label; the app only uses the label.
 const result = await generateObject({
   schema: z.object({ queue: z.enum(["sales", "support", "other"]) }),
   prompt: `Route this ticket: ${ticket.message}`,
 });
 return dispatch(result.object.queue);
-
-// After: shadow first; the existing answer remains authoritative.
-// Cutover remains a separate, evidence-based decision.
-const current = result.object.queue;
-const shadow = mode === "off" ? null : await askJev(ticket);
-logDecision({ current, shadow });
-if (mode !== "on" || !shadow) return dispatch(current);
-return dispatch(shadow.answer); // action policy is calibrated separately
 ```
+
+```ts
+// After /jevify migrate: JEV beside the current path, behind a flag. Shadow never blocks or changes the answer.
+const MODE = env.JEVIFY_TRIAGE_MODE ?? "shadow";   // off | shadow | on
+const MIN_CONFIDENCE = 0.8;                        // placeholder until tuned on shadow data
+
+if (MODE === "on") {
+  const jev = await decideQueue(ticket).catch(() => null);  // error or timeout → current path, never "no"
+  if (jev && jev.answer !== "insufficient_context" && jev.confidence >= MIN_CONFIDENCE) {
+    return dispatch(jev.answer);
+  }
+}
+const current = await currentModelRoute(ticket);    // the existing generateObject call, unchanged
+if (MODE === "shadow") void decideQueue(ticket).then((jev) => logShadow({ current, jev })).catch(() => {});
+return dispatch(current);
+```
+
+`decideQueue` sends a Choice question over `{ ticket }`; its request shape comes from the current TypeSafe docs at migration time.
 
 ## What the audit produces
 
-This excerpt is generated from the repository's [`evals/`](evals/) fixtures:
+From the [sample report](evals/sample-report-local-v1.3.md) over this repository's [`evals/`](evals/) fixtures (local mode, `--wide`):
 
 ```text
-13 fixtures inspected · 7 files with JEV candidate work · 2 generation tasks retained
-evals/fixtures/ticket-router.ts#4 | JEV_CANDIDATE | Choice | LOW | confirmed
-evals/fixtures/customer-response.ts#3 | GENERATION_REQUIRED | — | — | confirmed
-Consolidation: three calls over one ticket → one request with parallel questions
-Opportunity (--wide): regex intent parser; evidence only, never a call-site candidate
+16 runtime call-sites in 13 files · 10 JEV candidates (1 inside a composite) · 2 generation tasks retained
+1 deterministic · 1 embedding search · 1 human review · 1 unknown · 1 consolidation group · 1 wide opportunity
+
+evals/fixtures/ticket-router.ts#3    | JEV_CANDIDATE       | Choice | LOW  | dispatch() uses only the label
+evals/fixtures/announcement.ts#6     | GENERATION_REQUIRED | —      | —    | publish(r.text)
+evals/fixtures/ban-account.ts#6      | HUMAN_REVIEW        | —      | HIGH | policy requires a moderator
+Consolidation: consolidation.ts #6 #7 #8 → one request with Choice + Score + Noul over { ticket }
 ```
+
+How that was produced and what it does not prove: [evals/results-local-v1.3.md](evals/results-local-v1.3.md).
 
 ## Install
 
@@ -46,6 +59,8 @@ See [INSTALL.md](INSTALL.md) for MCP connection details.
 
 - `/jevify` audits and reports without editing source; add `--wide` for non-call semantic-code opportunities.
 - `/jevify migrate <finding>` plans and, after explicit approval, migrates one candidate in shadow mode.
+
+Installed as a Claude Code plugin, the command may be namespaced as `/jevify:jevify`.
 
 ## How classification works
 
