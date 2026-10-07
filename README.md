@@ -96,4 +96,4 @@ Each candidate is routed, after classification, to a primitive, one of TypeSafe'
 
 ## License and authorship
 
-Created by [Lucio Amorim](https://linkedin.com/in/lucioamorim). Licensed under [CC BY 4.0](LICENSE); retain attribution and indicate changes when redistributing.
+Created by [Lucio Amorim](https://www.linkedin.com/in/lucioamorim), Lovable Partner. Licensed under [CC BY 4.0](LICENSE); retain attribution and indicate changes when redistributing.
