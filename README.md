@@ -96,4 +96,7 @@ Each candidate is routed, after classification, to a primitive, one of TypeSafe'
 
 ## License and authorship
 
-Created by [Lucio Amorim](https://www.linkedin.com/in/lucioamorim), Lovable Partner. Licensed under [CC BY 4.0](LICENSE); retain attribution and indicate changes when redistributing.
+Created by [Lucio Amorim](https://www.linkedin.com/in/lucioamorim), Lovable Partner. Dual-licensed by content type:
+
+- Skills, documentation, report templates and other prose: [CC BY 4.0](LICENSE). Retain attribution and indicate changes when redistributing.
+- Code (`scripts/`, `launch/`, `evals/`, `.claude-plugin/`, `.mcp.json` and any other source files): [Apache License 2.0](LICENSE-CODE).
