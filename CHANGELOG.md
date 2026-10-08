@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.1 — 2026-10-08
+
+- MCP mode also covers the local server `@nxlv-ai/jevify` on npm (`npx -y @nxlv-ai/jevify`): offline, no account, `audit_files`, `classify_ai_callsite` and `migrate`, no stored audits. Upload confirmation applies only to the hosted service; redaction applies to both.
+- INSTALL and README document the local server; Lovable keeps the hosted URL.
+- Code is dual-licensed: prose under CC BY 4.0, code under Apache 2.0 (`LICENSE-CODE`).
+
 ## v1.4.0 — 2026-09-28
 
 - Splits step 3 into separate fields: primitive, TypeSafe pattern (Intent routing, Confidence-gated routing, Composite scoring, Speculative fan-out), cookbook (primary + companion), and fit. The old mixed list (route, re-rank, verify and escalate…) is gone.

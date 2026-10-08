@@ -1,6 +1,6 @@
 # jevify report template
 
-Mode: local | MCP · Date: YYYY-MM-DD · Audit id: — · Skill: v1.4.0
+Mode: local | MCP · Date: YYYY-MM-DD · Audit id: — · Skill: v1.4.1
 
 ## Summary
 

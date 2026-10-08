@@ -64,7 +64,7 @@ How that was produced and what it does not prove: [evals/results-local-v1.3.md](
 - Agent skills: `npx skills add lucioamor/jevify`
 - Claude Code: `claude plugin marketplace add lucioamor/jevify` then `claude plugin install jevify@jevify` (**untested until the v1.3 branch is published**)
 - Lovable: import `https://github.com/lucioamor/lovable-skill-jevify` under **Settings → Skills → Add → Import from GitHub**
-- Local MCP server (offline, no account): [lucioamor/jevify-mcp-server](https://github.com/lucioamor/jevify-mcp-server)
+- Local MCP server (offline, no account): `claude mcp add jevify -- npx -y @nxlv-ai/jevify` ([source](https://github.com/lucioamor/jevify-mcp-server))
 
 See [INSTALL.md](INSTALL.md) for MCP connection details.
 

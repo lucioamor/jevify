@@ -9,10 +9,10 @@ description: Run /jevify to audit an app's runtime AI calls (repository or Lovab
 
 ## Skill identity
 
-- Version: `v1.4.0`
+- Version: `v1.4.1`
 - Canonical source: `https://github.com/lucioamor/jevify`
 - Before the final response, compare this version with the canonical `VERSION.md` when reachable.
-- End with: `Skill: /jevify v1.4.0 · Version status: {current | update available | unverified} · Source: https://github.com/lucioamor/jevify`. Use `current` or `update available` only after a successful check.
+- End with: `Skill: /jevify v1.4.1 · Version status: {current | update available | unverified} · Source: https://github.com/lucioamor/jevify`. Use `current` or `update available` only after a successful check.
 
 ## Commands
 
@@ -35,16 +35,17 @@ JEV is TypeSafe's decision model. It answers typed questions about supplied stat
 
 Pick the mode once per run and state it in the report header.
 
-- **MCP mode** — the jevify service is connected (tools such as `audit_repository`, `audit_files`, `classify_ai_callsite`, `generate_jevify_report`, `migrate`; clients may prefix the names). Follow each tool's live schema and limits.
+- **MCP mode** — a jevify server is connected: the hosted service (tools such as `audit_repository`, `audit_files`, `classify_ai_callsite`, `generate_jevify_report`, `migrate`) or the local server `@nxlv-ai/jevify` (`audit_files`, `classify_ai_callsite`, `migrate`; offline, no account, no stored audits, so no audit id). Clients may prefix the names. Follow each tool's live schema and limits.
 - **Local mode** — the service is not connected, the user declines to send code, or consent is pending.
 
 If the service is not connected, say once how to connect, then continue locally:
 - Claude Code: `claude mcp add --transport http jevify https://jevify.lovable.app/mcp`, then sign in through `/mcp` (or install the repository plugin).
 - Lovable: **Connectors → custom MCP server** with `https://jevify.lovable.app/mcp`, then sign in.
 - Other clients: add the URL as a remote HTTP MCP server with OAuth.
+- Offline, no account (clients that run local stdio servers): `claude mcp add jevify -- npx -y @nxlv-ai/jevify`, or `npx -y @nxlv-ai/jevify` as the server command.
 
 MCP rules:
-- Before the first upload in a session, list the file count and paths and get a yes. For `audit_repository`, confirm the URL and say it reads the pushed remote, not local changes.
+- Before the first upload to the hosted service in a session, list the file count and paths and get a yes. The local server keeps files on the machine and needs no upload confirmation; the redaction rule below still applies. For `audit_repository`, confirm the URL and say it reads the pushed remote, not local changes.
 - Never send `.env*`, keys, tokens, credentials, or private keys. Replace secret values with `<redacted>` without shifting line numbers.
 - **Service output is triage, not a verdict.** Its classifier sees a limited window around each call and may not see how the response is consumed. For every service result classified `JEV_CANDIDATE` or `DETERMINISTIC_CODE`, read the consumer yourself and set `verified` to `confirmed`, `disputed`, or `not checked`. Never rewrite the service classification; put disagreements with evidence under **Reviewer notes**.
 - If a tool fails, report the error and do that step locally. Never present local output as a service result.
@@ -147,7 +148,7 @@ Decision policy:
 
 Write (or return in chat) this structure:
 
-1. **Header:** `Mode: local|MCP · Date · Audit id (MCP only) · Skill: v1.4.0`, then one summary line: N call-sites, X candidates, split by class.
+1. **Header:** `Mode: local|MCP · Date · Audit id (hosted MCP only) · Skill: v1.4.1`, then one summary line: N call-sites, X candidates, split by class.
 2. **Inventory:** `finding | purpose | classification | primitive | risk | verified | evidence`.
 3. **Candidate details**, one block each: `current` (what the call decides and how the consumer uses it), `recommended` (primitive + minimal state + question), `pattern`, `cookbook` (primary; companion if any), `fit`, `effect` (direction only), `architecture` (shadow comparison → calibrated action policy → current path as fallback), `next step: /jevify migrate path#line`.
 4. **Retained generation**, briefly, so nothing looks missed.

@@ -1,6 +1,6 @@
 {
   "name": "jevify",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Audit runtime AI decisions and migrate approved candidates to JEV with shadow validation.",
   "author": {
     "name": "Lucio Amorim"

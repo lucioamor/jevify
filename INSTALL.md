@@ -27,4 +27,14 @@ Import `https://github.com/lucioamor/lovable-skill-jevify` through **Settings â†
 - Lovable: add the URL above as a personal custom MCP connector.
 - Other clients: add the URL as a remote HTTP MCP server with OAuth, if the client supports remote MCP.
 
+### Local server (offline, no account)
+
+The same engine runs on your machine as [`@nxlv-ai/jevify`](https://www.npmjs.com/package/@nxlv-ai/jevify) ([source](https://github.com/lucioamor/jevify-mcp-server)). It is deterministic, sends nothing over the network, and exposes `audit_files`, `classify_ai_callsite` and `migrate`. Repository URL audits and stored reports stay on the hosted service.
+
+```bash
+claude mcp add jevify -- npx -y @nxlv-ai/jevify
+```
+
+Other clients that run local stdio servers: command `npx`, args `["-y", "@nxlv-ai/jevify"]`. Lovable cannot run local servers; use the hosted URL there.
+
 The MCP connection is optional. Local mode does not send code to the jevify service; the coding agent itself may still use remote processing according to its own configuration.
