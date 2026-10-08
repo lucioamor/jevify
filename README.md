@@ -12,7 +12,7 @@ jevify is built to make that concrete, in three steps you can inspect:
 2. **Picture the change.** Each candidate gets a before/after sketch: the primitive, the TypeSafe pattern, the closest official cookbook, and what your app would need to adapt.
 3. **Measure it on your own traffic.** `/jevify migrate` runs the new path in shadow beside the current one and logs both: cost per decision, latency p50/p95, agreement, labeled disagreements, fallback rate. The gain becomes a number from your data, or the migration stops.
 
-The pieces share one method: this **skill** is the canonical source, the **MCP service** at `jevify.lovable.app` runs the same audit remotely and keeps reports under your account, and the **Lovable skill** brings it into Lovable projects. Every effect stays a hypothesis until shadow data says otherwise.
+The pieces share one method: this **skill** is the canonical source, the **MCP service** at `jevify.lovable.app` runs the same audit remotely and keeps reports under your account, the open-source **[local MCP server](https://github.com/lucioamor/jevify-mcp-server)** runs the same engine offline on your machine, and the **Lovable skill** brings it into Lovable projects. Every effect stays a hypothesis until shadow data says otherwise.
 
 ## Before and after
 
@@ -64,6 +64,7 @@ How that was produced and what it does not prove: [evals/results-local-v1.3.md](
 - Agent skills: `npx skills add lucioamor/jevify`
 - Claude Code: `claude plugin marketplace add lucioamor/jevify` then `claude plugin install jevify@jevify` (**untested until the v1.3 branch is published**)
 - Lovable: import `https://github.com/lucioamor/lovable-skill-jevify` under **Settings → Skills → Add → Import from GitHub**
+- Local MCP server (offline, no account): [lucioamor/jevify-mcp-server](https://github.com/lucioamor/jevify-mcp-server)
 
 See [INSTALL.md](INSTALL.md) for MCP connection details.
 
